@@ -69,7 +69,8 @@ def fit_closed(Xtr, ytr, Xva):
     pickle.dump(pm, open(cache("patch.pkl"), "wb"))
 
 
-def fit_judge(Xtr, ytr, Xva, yva, epochs=10, minutes=30, bs=128):
+def fit_judge(Xtr, ytr, Xva, yva, epochs=10, minutes=30, bs=128, out="judge.pkl", log_fn=None, tag="judge"):
+    say = log_fn or log
     key = jax.random.PRNGKey(1)
     p = nets.cnn_init(key)
     st = nets.adam_init(p)
@@ -97,11 +98,11 @@ def fit_judge(Xtr, ytr, Xva, yva, epochs=10, minutes=30, bs=128):
             ls.append(float(l))
             k += 1
         va = np.mean(np.concatenate([np.asarray(acc(p, jnp.asarray(Xva[s:s + 1000]))) for s in range(0, len(Xva), 1000)]) == yva)
-        log(f"judge epoch {ep + 1}: loss {np.mean(ls):.3f} val acc {va:.4f} ({time.time() - t0:.0f}s)")
+        say(f"{tag} epoch {ep + 1}: loss {np.mean(ls):.3f} val acc {va:.4f} ({time.time() - t0:.0f}s)")
         if time.time() - t0 > minutes * 60:
-            log("judge: time budget reached")
+            say(f"{tag}: time budget reached")
             break
-    nets.save(p, cache("judge.pkl"))
+    nets.save(p, cache(out))
 
 
 def fit_ar(Xtr, ytr, Xva, yva, epochs=15, minutes=75, bs=128):
