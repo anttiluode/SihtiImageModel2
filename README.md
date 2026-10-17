@@ -1,5 +1,7 @@
 # SihtiImageModel2
 
+![pic](pic.png)
+
 [Try it live](https://anttiluode.github.io/SihtiImageModel2/web/index.html): pick a class, watch the
 layout draw itself cell by cell, then watch the Sihti bands fill it in. Everything runs in the page.
 
