@@ -120,9 +120,19 @@ def fit_ar(Xtr, ytr, Xva, yva, epochs=15, minutes=75, bs=128):
         return p, st, l
 
     vloss = jax.jit(nets.ar_loss)
-    rng = np.random.default_rng(2)
-    t0, k, best = time.time(), 0, 1e9
-    for ep in range(epochs):
+    t0, k, best, start, spent = time.time(), 0, 1e9, 0, 0.0
+    resume = cache("ar_resume.pkl")
+    if os.path.exists(resume):          # survive a machine restart: continue from the last finished epoch
+        r = pickle.load(open(resume, "rb"))
+        p = jax.tree_util.tree_map(jnp.asarray, r["p"])
+        best, start, spent = float(r["best"]), int(r["epoch"]), float(r["spent"])
+        st = {"m": jax.tree_util.tree_map(jnp.asarray, r["st"]["m"]),
+              "v": jax.tree_util.tree_map(jnp.asarray, r["st"]["v"]), "t": int(r["st"]["t"])}
+        k = start * nper
+        log(f"layout AR: resuming after epoch {start} (best val NLL {best:.3f})")
+    t0 -= spent
+    for ep in range(start, epochs):
+        rng = np.random.default_rng(2 + ep)
         perm = rng.permutation(len(Ttr))
         ls = []
         for s in range(0, nper * bs, bs):
@@ -142,6 +152,7 @@ def fit_ar(Xtr, ytr, Xva, yva, epochs=15, minutes=75, bs=128):
         if v < best:
             best = v
             nets.save(p, cache("ar.pkl"))
+        nets.save({"p": p, "st": st, "best": best, "epoch": ep + 1, "spent": time.time() - t0}, resume)
         if time.time() - t0 > minutes * 60:
             log("layout AR: time budget reached")
             break
