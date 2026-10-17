@@ -59,7 +59,7 @@ class Judge:
 def fd(fa, fb):
     m1, m2 = fa.mean(0), fb.mean(0)
     c1, c2 = np.cov(fa, rowvar=False), np.cov(fb, rowvar=False)
-    s, _ = linalg.sqrtm(c1 @ c2, disp=False)
+    s = linalg.sqrtm(c1 @ c2)
     return float(((m1 - m2) ** 2).sum() + np.trace(c1 + c2 - 2 * s.real))
 
 
