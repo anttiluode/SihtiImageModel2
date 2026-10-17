@@ -3,8 +3,5 @@ results/cache/
 __pycache__/
 *.pyc
 results/fit_stdout.txt
-results/fit_log.txt
-results/gate_log.txt
 results/gate_stdout.txt
-results/posthoc_log.txt
 results/posthoc_stdout.txt

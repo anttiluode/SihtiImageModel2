@@ -58,6 +58,9 @@ def main():
             "bench": {"images": X[idx].reshape(len(idx), -1).tolist(), "labels": y[idx].tolist()},
             "data": src, "results": res}
     json.dump(meta, open(os.path.join(WEB, "model.json"), "w"))
+    import shutil
+    for f in ("fig_samples.png", "fig_stages.png", "fig_nearest.png", "fig_real_layouts.png", "fig_sampled_detail.png"):
+        shutil.copy(os.path.join(HERE, "results", f), os.path.join(WEB, f))
     print(f"model.bin {off * 2 / 1e6:.2f} MB, {len(man)} arrays")
 
 

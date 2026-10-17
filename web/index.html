@@ -1,3 +1,6 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
 <title>SihtiImageModel2</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -85,12 +88,16 @@ a { color: var(--accent); }
       <div class="controls">
         <button class="btn" id="go" disabled>Draw one</button>
         <button class="btn ghost" id="go12" disabled>Draw 12</button>
+        <span class="controls" role="group" aria-label="Detail" id="detail">
+          <button class="chip" data-arm="P3" aria-pressed="true">mean detail</button>
+          <button class="chip" data-arm="P3s" aria-pressed="false">sampled detail</button>
+        </span>
         <label class="slider" for="temp">temperature <input id="temp" type="range" min="0.6" max="1.2" step="0.05" value="1"> <span id="tval" class="mono">1.00</span></label>
       </div>
       <div class="status" id="status">Loading the model (about 4 MB)…</div>
       <div class="strip" id="strip"></div>
       <div class="grid12" id="grid12"></div>
-      <p class="lede" style="font-size:0.92rem">The gates used temperature 1.0, as pre-registered. Lower temperatures give more typical layouts and are shown here only for looking.</p>
+      <p class="lede" style="font-size:0.92rem">Mean detail is the pre-registered arm: each code returns its least-squares residue. Sampled detail adds a draw from that code's leftover spread, per colour channel, which is why it comes out as coloured grain. The gates used temperature 1.0; other temperatures are here only for looking.</p>
     </div>
   </section>
 
@@ -108,6 +115,9 @@ a { color: var(--accent); }
     <p id="res-intro">Gates and thresholds were committed in PREREG.md before any of them ran.</p>
     <div class="tablewrap"><table id="gates"></table></div>
     <div class="tablewrap"><table id="arms"></table></div>
+    <h3>After the main gates: sampled detail and a judge for blurry images</h3>
+    <p>Pre-registered in PREREG_STOCHASTIC.md after the main run. The second judge has the same network, trained on bicubic-upsampled 8&times;8 layouts of the training images; it has no pass/fail.</p>
+    <div class="tablewrap"><table id="post"></table></div>
   </section>
 
   <section aria-labelledby="fig-h">
@@ -116,12 +126,21 @@ a { color: var(--accent); }
       <figure><img src="fig_samples.png" alt="Grid of generated images for ten classes with three methods side by side" loading="lazy"><figcaption>Left to right: learned layout + Sihti memory, the same layouts upsampled by bicubic, a Gaussian layout + Sihti memory.</figcaption></figure>
       <figure><img src="fig_stages.png" alt="One sample per class built up band by band" loading="lazy"><figcaption>One sample per class, built up: layout, lift, then each residue band added, with the bands shown in signed colour.</figcaption></figure>
     </div>
+    <div class="two">
+      <figure><img src="fig_real_layouts.png" alt="Real test images, their 8x8 layouts, and three fills" loading="lazy"><figcaption>Real test images, their 8&times;8 layouts, then bicubic, the linear filter and the Sihti memory filling them back in.</figcaption></figure>
+      <figure><img src="fig_sampled_detail.png" alt="The same learned layouts with mean detail and with sampled detail" loading="lazy"><figcaption>Mean detail (left) against sampled detail (right) on the same layouts. Closer to real images by FD; visibly grain.</figcaption></figure>
+    </div>
     <figure><img src="fig_nearest.png" alt="Generated samples beside their nearest training images" loading="lazy"><figcaption>Each sample beside the training image whose layout is closest. Judge for yourself how much is recall.</figcaption></figure>
   </section>
 
   <section aria-labelledby="notes-h">
     <h2 id="notes-h">Notes</h2>
-    <div id="notes" style="display:grid;gap:10px"></div>
+    <div id="notes" style="display:grid;gap:10px">
+      <p><b>The layout is close to its ceiling; the detail is not.</b> Real test images cut to their own 8&times;8 layout and filled by the Sihti memory sit at FD 102 from real images. The learned layouts, through the same fill, sit at 110. Two sets of real images sit at 1. Almost all of the distance to real photos is missing detail, not a wrong layout.</p>
+      <p><b>Why the detail is missing.</b> Each code in the patch memory is a least-squares map, so it returns the average residue for a window. Averaging edges keeps them; averaging texture cancels it. Even from true layouts the fills carry 11% of real images' fine-band energy.</p>
+      <p><b>Why G1 failed.</b> The pre-registered judge was trained on sharp photos, and blurry images collapse onto three of its classes (bird, cat, ship). It reads only 26% of real photos filled from their own layouts. The judge for blurry images reads 61% of those, 48% of the learned layouts and 55% of the Gaussian ones. A Gaussian sample sits on its class's mean colours, which is what a classifier keys on; to the eye those samples are colour mush, and the learned ones are scenes. Classifier accuracy rewards stereotypes here, the same effect v1 saw on CIFAR.</p>
+      <p><b>Data.</b> CIFAR-10 from a GitHub mirror that re-saved the images as JPEG at quality about 75, because the official site was not reachable from the build machine. JPEG removes some of exactly the finest detail this measures.</p>
+    </div>
   </section>
 </div>
 
@@ -129,7 +148,7 @@ a { color: var(--accent); }
 import { loadModel, newSequence, sampleNext, tokensToLayout, refine, bicubic, layoutOf, liftLayout, mulberry32 } from "./model.js";
 
 const $ = (id) => document.getElementById(id);
-let M = null, cls = 2, busy = false;
+let M = null, cls = 2, busy = false, arm = "P3";
 const SCALE = 4;
 
 function canvasFrom(rgb, side, signed = false) {
@@ -179,7 +198,7 @@ async function drawOne() {
   }
   const L = tokensToLayout(M, seq.toks);
   strip.firstChild.querySelector(".label").textContent = "8×8 layout (learned)";
-  const r = refine(M, L, "P3");
+  const r = refine(M, L, arm, rand);
   const names = ["lift → x16", "+ r2", "+ r1", "+ r0 = image"];
   for (let k = 0; k < 4; k++) {
     await new Promise((res) => setTimeout(res, 260));
@@ -201,7 +220,7 @@ async function drawTwelve() {
     const rand = mulberry32((Math.random() * 2 ** 31) | 0);
     const seq = newSequence(M);
     for (let i = 0; i < 64; i++) sampleNext(M, seq, cls, rand, T);
-    g.append(canvasFrom(refine(M, tokensToLayout(M, seq.toks), "P3").image, 32));
+    g.append(canvasFrom(refine(M, tokensToLayout(M, seq.toks), arm, rand).image, 32));
     $("status").textContent = `${M.meta.classes[cls]}: ${n + 1} / 12`;
     await tick();
   }
@@ -237,6 +256,16 @@ function renderResults() {
   const rows = ["R0", "R1", "R2", "R3"].map((a) => `<tr><td>${R.arms[a]}</td><td class="num">${f(o[a].psnr)} dB</td><td class="num">${pc(o[a].judge_acc)}</td><td class="num">${pc(g.LA[a].judge_acc)}</td><td class="num">${f(g.LA[a].fd, 3)}</td><td class="num">${f(g.LA[a].hf_ratio)}×</td></tr>`).join("");
   $("arms").innerHTML = `<tr><th>detail stage</th><th>real layouts PSNR</th><th>judge, real layouts</th><th>judge, learned layouts</th><th>FD, learned layouts</th><th>fine energy</th></tr>${rows}
   <tr><td>real images (ceiling)</td><td class="num">—</td><td class="num">${pc(R.judge_real_subset)}</td><td class="num">—</td><td class="num">${f(R.fd_real_vs_real, 3)} (real vs real)</td><td class="num">1.00×</td></tr>`;
+  const P = R.posthoc;
+  if (P) {
+    const bj = P.blur_judge;
+    $("post").innerHTML = `<tr><th>measure</th><th>mean detail (R3)</th><th>sampled detail (R4)</th><th></th></tr>
+    <tr><td>S1 fine-detail energy vs real (pass 0.6 – 1.4×)</td><td class="num">${f(g.LA.R3.hf_ratio)}×</td><td class="num">${f(P.LA_R4.hf_ratio)}×</td><td>${pill(P.S1)}</td></tr>
+    <tr><td>S2 FD to real images, learned layouts</td><td class="num">${f(g.LA.R3.fd, 1)}</td><td class="num">${f(P.LA_R4.fd, 1)}</td><td>${pill(P.S2)}</td></tr>
+    <tr><td>S3 PSNR on real layouts (a cost, no threshold)</td><td class="num">${f(o.R3.psnr)} dB</td><td class="num">${f(P.real_R4.psnr)} dB</td><td></td></tr>
+    <tr><td>sharp judge, learned layouts</td><td class="num">${pc(g.LA.R3.judge_acc)}</td><td class="num">${pc(P.LA_R4.judge_acc)}</td><td></td></tr>
+    <tr><td>blurry-image judge: real layouts / learned / Gaussian (bicubic fill)</td><td class="num" colspan="2">${pc(bj["real layouts, bicubic"].acc)} / ${pc(bj["LA+R1"].acc)} / ${pc(bj["LG+R1"].acc)}</td><td></td></tr>`;
+  }
   $("res-intro").textContent = `Gates and thresholds were committed in PREREG.md before any of them ran. Data: CIFAR-10 (${R.data === "jpeg_mirror" ? "JPEG mirror, quality about 75" : "official batches"}). The judge is a small CNN trained on real images; it reads ${pc(R.judge_real_test)} of real test images.`;
 }
 
@@ -248,6 +277,8 @@ async function main() {
     b.onclick = () => { cls = k; [...box.children].forEach((c, j) => c.setAttribute("aria-pressed", String(j === k))); };
     box.append(b);
   });
+  const det = $("detail");
+  [...det.children].forEach((b) => { b.onclick = () => { arm = b.dataset.arm; [...det.children].forEach((c) => c.setAttribute("aria-pressed", String(c === b))); }; });
   $("temp").oninput = () => { $("tval").textContent = parseFloat($("temp").value).toFixed(2); };
   try {
     const [meta, buf] = await Promise.all([fetch("model.json").then((r) => r.json()), fetch("model.bin").then((r) => r.arrayBuffer())]);
@@ -269,7 +300,6 @@ async function main() {
   th.replaceChildren(...thumbs);
   showBench(8, thumbs);
   renderResults();
-  if (M.meta.notes) $("notes").innerHTML = M.meta.notes.map((n) => `<p>${n}</p>`).join("");
   drawOne();
 }
 main();
