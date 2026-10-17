@@ -1,0 +1,7 @@
+numpy
+scipy
+scikit-learn
+pillow
+matplotlib
+jax[cpu]
+pytest

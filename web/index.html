@@ -1,0 +1,276 @@
+<title>SihtiImageModel2</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Source+Sans+3:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a bench instrument. One live strip (layout -> lift -> bands -> image) leads; evidence below. */
+:root {
+  --bg: #eef0f3; --panel: #ffffff; --ink: #18202c; --muted: #5a6474; --line: #d5dae2;
+  --accent: #2a45c8; --accent-ink: #ffffff; --pass: #1f7a4c; --fail: #b3261e; --well: #e3e7ee;
+  --display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", sans-serif;
+  --body: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #11151c; --panel: #181e27; --ink: #e6e9ef; --muted: #98a2b3; --line: #2a3240;
+  --accent: #8ea0ff; --accent-ink: #0d1222; --pass: #5fd09a; --fail: #ff8a80; --well: #0c1016; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #11151c; --panel: #181e27; --ink: #e6e9ef; --muted: #98a2b3; --line: #2a3240;
+  --accent: #8ea0ff; --accent-ink: #0d1222; --pass: #5fd09a; --fail: #ff8a80; --well: #0c1016; color-scheme: dark }
+body { background: var(--bg); color: var(--ink); font: 16px/1.55 var(--body); }
+.wrap { max-width: 1080px; margin: 0 auto; padding-block: 28px 64px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+h1, h2, h3 { font-family: var(--display); text-wrap: balance; margin: 0; letter-spacing: -0.01em; }
+h1 { font-size: clamp(2rem, 5vw, 3.1rem); font-weight: 700; line-height: 1.05; }
+h2 { font-size: 1.45rem; font-weight: 700; }
+h3 { font-size: 1.02rem; font-weight: 500; }
+p { margin: 0; max-width: 68ch; }
+.lede { color: var(--muted); font-size: 1.08rem; }
+.mono, code { font-family: var(--mono); font-size: 0.86em; }
+.eq { font-family: var(--mono); font-size: 0.85rem; background: var(--well); border-radius: 6px; padding: 10px 12px;
+  overflow-x: auto; white-space: pre; color: var(--ink); }
+section { display: grid; gap: 14px; margin-top: 44px; }
+header { display: grid; gap: 12px; }
+.label { font-family: var(--mono); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+.bench { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 18px; display: grid; gap: 16px; }
+.controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.chip { font: 600 0.9rem var(--body); border: 1px solid var(--line); background: transparent; color: var(--ink);
+  padding: 6px 12px; border-radius: 999px; cursor: pointer; }
+.chip[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.btn { font: 600 0.95rem var(--body); background: var(--accent); color: var(--accent-ink); border: 0; padding: 9px 16px; border-radius: 8px; cursor: pointer; }
+.btn.ghost { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
+.btn:disabled { opacity: 0.5; cursor: progress; }
+button:focus-visible, input:focus-visible, canvas:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.strip { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 12px; }
+.cell { display: grid; gap: 6px; min-width: 0; }
+.cell canvas { width: 100%; aspect-ratio: 1; image-rendering: pixelated; background: var(--well); border-radius: 4px; display: block; max-width: 100%; }
+.cell .label { text-transform: none; letter-spacing: 0; font-size: 0.74rem; }
+.cell.final canvas { outline: 2px solid var(--accent); outline-offset: 2px; }
+.grid12 { display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 8px; }
+.grid12 canvas, .thumbs canvas { width: 100%; aspect-ratio: 1; image-rendering: pixelated; border-radius: 3px; display: block; max-width: 100%; }
+.thumbs { display: grid; grid-template-columns: repeat(auto-fill, minmax(44px, 1fr)); gap: 6px; }
+.thumbs canvas { cursor: pointer; opacity: 0.85; }
+.thumbs canvas[aria-pressed="true"] { opacity: 1; outline: 2px solid var(--accent); outline-offset: 1px; }
+.status { font-family: var(--mono); font-size: 0.8rem; color: var(--muted); min-height: 1.3em; }
+.slider { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; color: var(--muted); }
+.tablewrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 0.92rem; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-family: var(--mono); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); font-weight: 600; }
+td.num { font-family: var(--mono); font-size: 0.85rem; white-space: nowrap; }
+.pill { font: 600 0.72rem var(--mono); padding: 2px 8px; border-radius: 999px; border: 1px solid currentColor; letter-spacing: 0.04em; }
+.pill.pass { color: var(--pass); } .pill.fail { color: var(--fail); }
+.two { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px; }
+.two > * { min-width: 0; }
+figure { margin: 0; display: grid; gap: 6px; }
+figure img { border-radius: 6px; border: 1px solid var(--line); background: #fff; }
+figcaption { font-size: 0.85rem; color: var(--muted); }
+a { color: var(--accent); }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <span class="label">anttiluode / SihtiImageModel2</span>
+    <h1>A learned layout, filled in by the Sihti sieve</h1>
+    <p class="lede">A small transformer draws an 8&times;8 colour layout for a class, one cell at a time. Everything after that is closed form: a single linear lift to Sihti's coarse state, then the patch memory fills the three finer residue bands. Both stages run live in this page.</p>
+    <div class="eq">class → layout L (8×8×3, learned)  →  x16 = lift(L)  →  + r2 + r1 + r0 (patch memory)  =  image (32×32×3)</div>
+  </header>
+
+  <section aria-labelledby="gen-h">
+    <h2 id="gen-h">Generate</h2>
+    <div class="bench">
+      <div class="controls" id="classes" role="group" aria-label="Class"></div>
+      <div class="controls">
+        <button class="btn" id="go" disabled>Draw one</button>
+        <button class="btn ghost" id="go12" disabled>Draw 12</button>
+        <label class="slider" for="temp">temperature <input id="temp" type="range" min="0.6" max="1.2" step="0.05" value="1"> <span id="tval" class="mono">1.00</span></label>
+      </div>
+      <div class="status" id="status">Loading the model (about 4 MB)…</div>
+      <div class="strip" id="strip"></div>
+      <div class="grid12" id="grid12"></div>
+      <p class="lede" style="font-size:0.92rem">The gates used temperature 1.0, as pre-registered. Lower temperatures give more typical layouts and are shown here only for looking.</p>
+    </div>
+  </section>
+
+  <section aria-labelledby="bench-h">
+    <h2 id="bench-h">Fill in a real photo from its 8&times;8 layout</h2>
+    <p>Held-out CIFAR-10 test images the model never saw. Each one is cut down to its 8&times;8 layout, then filled back in three ways. The numbers are PSNR to the real image, computed here.</p>
+    <div class="bench">
+      <div class="thumbs" id="thumbs"></div>
+      <div class="strip" id="bstrip"></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="res-h">
+    <h2 id="res-h">Pre-registered gates</h2>
+    <p id="res-intro">Gates and thresholds were committed in PREREG.md before any of them ran.</p>
+    <div class="tablewrap"><table id="gates"></table></div>
+    <div class="tablewrap"><table id="arms"></table></div>
+  </section>
+
+  <section aria-labelledby="fig-h">
+    <h2 id="fig-h">Samples</h2>
+    <div class="two">
+      <figure><img src="fig_samples.png" alt="Grid of generated images for ten classes with three methods side by side" loading="lazy"><figcaption>Left to right: learned layout + Sihti memory, the same layouts upsampled by bicubic, a Gaussian layout + Sihti memory.</figcaption></figure>
+      <figure><img src="fig_stages.png" alt="One sample per class built up band by band" loading="lazy"><figcaption>One sample per class, built up: layout, lift, then each residue band added, with the bands shown in signed colour.</figcaption></figure>
+    </div>
+    <figure><img src="fig_nearest.png" alt="Generated samples beside their nearest training images" loading="lazy"><figcaption>Each sample beside the training image whose layout is closest. Judge for yourself how much is recall.</figcaption></figure>
+  </section>
+
+  <section aria-labelledby="notes-h">
+    <h2 id="notes-h">Notes</h2>
+    <div id="notes" style="display:grid;gap:10px"></div>
+  </section>
+</div>
+
+<script type="module">
+import { loadModel, newSequence, sampleNext, tokensToLayout, refine, bicubic, layoutOf, liftLayout, mulberry32 } from "./model.js";
+
+const $ = (id) => document.getElementById(id);
+let M = null, cls = 2, busy = false;
+const SCALE = 4;
+
+function canvasFrom(rgb, side, signed = false) {
+  const c = document.createElement("canvas");
+  c.width = side; c.height = side;
+  const ctx = c.getContext("2d"), im = ctx.createImageData(side, side);
+  let s = 1;
+  if (signed) { s = 1e-9; for (const v of rgb) s = Math.max(s, Math.abs(v)); }
+  for (let k = 0; k < side * side; k++) for (let ch = 0; ch < 3; ch++) {
+    const v = signed ? 0.5 + 0.5 * rgb[k * 3 + ch] / s : rgb[k * 3 + ch];
+    im.data[k * 4 + ch] = Math.max(0, Math.min(255, Math.round(v * 255)));
+  }
+  for (let k = 0; k < side * side; k++) im.data[k * 4 + 3] = 255;
+  ctx.putImageData(im, 0, 0);
+  return c;
+}
+function cell(label, canvas, final = false) {
+  const d = document.createElement("div");
+  d.className = "cell" + (final ? " final" : "");
+  const l = document.createElement("span");
+  l.className = "label"; l.textContent = label;
+  d.append(canvas, l);
+  return d;
+}
+const psnr = (a, b) => { let m = 0; for (let i = 0; i < a.length; i++) m += (Math.min(1, Math.max(0, a[i])) - b[i]) ** 2; return 10 * Math.log10(1 / (m / a.length)); };
+const tick = () => new Promise((r) => requestAnimationFrame(r));
+
+async function drawOne() {
+  if (busy) return;
+  busy = true; $("go").disabled = $("go12").disabled = true;
+  $("grid12").replaceChildren();
+  const strip = $("strip");
+  const T = parseFloat($("temp").value);
+  const rand = mulberry32((Math.random() * 2 ** 31) | 0);
+  const seq = newSequence(M);
+  const live = document.createElement("canvas");
+  live.width = live.height = 8;
+  strip.replaceChildren(cell("8×8 layout, drawing…", live));
+  const ctx = live.getContext("2d");
+  for (let i = 0; i < 64; i++) {
+    const t = sampleNext(M, seq, cls, rand, T);
+    const C = M.A.palette.d;
+    ctx.fillStyle = `rgb(${C[t * 3] * 255},${C[t * 3 + 1] * 255},${C[t * 3 + 2] * 255})`;
+    ctx.fillRect(i % 8, i >> 3, 1, 1);
+    $("status").textContent = `${M.meta.classes[cls]}: layout cell ${i + 1} / 64`;
+    if (i % 2 === 1) await tick();
+  }
+  const L = tokensToLayout(M, seq.toks);
+  strip.firstChild.querySelector(".label").textContent = "8×8 layout (learned)";
+  const r = refine(M, L, "P3");
+  const names = ["lift → x16", "+ r2", "+ r1", "+ r0 = image"];
+  for (let k = 0; k < 4; k++) {
+    await new Promise((res) => setTimeout(res, 260));
+    strip.append(cell(names[k], canvasFrom(r.stages[k], 32), k === 3));
+    if (k > 0) strip.append(cell(`band r${3 - k} (signed)`, canvasFrom(r.bands[k - 1], 32, true)));
+  }
+  strip.append(cell("bicubic, same layout", canvasFrom(bicubic(L), 32)));
+  $("status").textContent = `${M.meta.classes[cls]}: done. Every step after the layout is closed form.`;
+  busy = false; $("go").disabled = $("go12").disabled = false;
+}
+
+async function drawTwelve() {
+  if (busy) return;
+  busy = true; $("go").disabled = $("go12").disabled = true;
+  const g = $("grid12");
+  g.replaceChildren();
+  const T = parseFloat($("temp").value);
+  for (let n = 0; n < 12; n++) {
+    const rand = mulberry32((Math.random() * 2 ** 31) | 0);
+    const seq = newSequence(M);
+    for (let i = 0; i < 64; i++) sampleNext(M, seq, cls, rand, T);
+    g.append(canvasFrom(refine(M, tokensToLayout(M, seq.toks), "P3").image, 32));
+    $("status").textContent = `${M.meta.classes[cls]}: ${n + 1} / 12`;
+    await tick();
+  }
+  $("status").textContent = `${M.meta.classes[cls]}: 12 samples, temperature ${T.toFixed(2)}.`;
+  busy = false; $("go").disabled = $("go12").disabled = false;
+}
+
+function showBench(i, thumbs) {
+  thumbs.forEach((t, k) => t.setAttribute("aria-pressed", String(k === i)));
+  const u8 = M.meta.bench.images[i], truth = Float32Array.from(u8, (v) => v / 255);
+  const L = layoutOf(u8);
+  const lay = new Float32Array(3072);
+  for (let y = 0; y < 32; y++) for (let x = 0; x < 32; x++) for (let c = 0; c < 3; c++) lay[(y * 32 + x) * 3 + c] = L[(((y >> 2) * 8) + (x >> 2)) * 3 + c];
+  const bic = bicubic(L), p0 = refine(M, L, "P0").image, p3 = refine(M, L, "P3").image;
+  $("bstrip").replaceChildren(
+    cell(`real ${M.meta.classes[M.meta.bench.labels[i]]}`, canvasFrom(truth, 32)),
+    cell("its 8×8 layout", canvasFrom(lay, 32)),
+    cell(`bicubic ${psnr(bic, truth).toFixed(2)} dB`, canvasFrom(bic, 32)),
+    cell(`lift + linear P0 ${psnr(p0, truth).toFixed(2)} dB`, canvasFrom(p0, 32)),
+    cell(`lift + Sihti P3 ${psnr(p3, truth).toFixed(2)} dB`, canvasFrom(p3, 32), true));
+}
+
+function renderResults() {
+  const R = M.meta.results, pill = (ok) => `<span class="pill ${ok ? "pass" : "fail"}">${ok ? "PASS" : "FAIL"}</span>`;
+  const o = R.oracle, g = R.generated, f = (x, d = 2) => Number(x).toFixed(d), pc = (x) => (100 * x).toFixed(1) + "%";
+  $("gates").innerHTML = `<tr><th>gate</th><th>what</th><th>measured</th><th>pass if</th><th></th></tr>
+  <tr><td class="num">O1</td><td>real layouts, PSNR to the real image</td><td class="num">P3 ${f(o.R3.psnr)} · P0 ${f(o.R2.psnr)} · bicubic ${f(o.R1.psnr)} dB</td><td>P3 ≥ P0 + 0.1 dB and &gt; bicubic</td><td>${pill(R.O1)}</td></tr>
+  <tr><td class="num">O2</td><td>judge reads the reconstruction</td><td class="num">P3 ${pc(o.R3.judge_acc)} · bicubic ${pc(o.R1.judge_acc)}</td><td>P3 ≥ bicubic + 2 pts</td><td>${pill(R.O2)}</td></tr>
+  <tr><td class="num">G1</td><td>judge reads the requested class</td><td class="num">learned ${pc(g.LA.R3.judge_acc)} · Gaussian ${pc(g.LG.R3.judge_acc)}</td><td>learned ≥ 35% and ≥ Gaussian + 10 pts</td><td>${pill(R.G1)}</td></tr>
+  <tr><td class="num">G2</td><td>distance to real images (judge features, FD)</td><td class="num">P3 ${f(g.LA.R3.fd, 3)} · P0 ${f(g.LA.R2.fd, 3)} · bicubic ${f(g.LA.R1.fd, 3)} · lift ${f(g.LA.R0.fd, 3)}</td><td>P3 &lt; P0 &lt; bicubic, P3 &lt; lift</td><td>${pill(R.G2)}</td></tr>
+  <tr><td class="num">G2b</td><td>fine-detail energy vs real images</td><td class="num">${f(g.LA.R3.hf_ratio)}× (bicubic ${f(g.LA.R1.hf_ratio)}×)</td><td>0.6 – 1.4×</td><td>${pill(R.G2b)}</td></tr>
+  <tr><td class="num">G3</td><td>novelty against the training set</td><td class="num">ratio ${f(R.novelty.LA.ratio)} · near-copies ${pc(R.novelty.LA.near_copies)}</td><td>≥ 0.7 and ≤ 2%</td><td>${pill(R.G3)}</td></tr>`;
+  const rows = ["R0", "R1", "R2", "R3"].map((a) => `<tr><td>${R.arms[a]}</td><td class="num">${f(o[a].psnr)} dB</td><td class="num">${pc(o[a].judge_acc)}</td><td class="num">${pc(g.LA[a].judge_acc)}</td><td class="num">${f(g.LA[a].fd, 3)}</td><td class="num">${f(g.LA[a].hf_ratio)}×</td></tr>`).join("");
+  $("arms").innerHTML = `<tr><th>detail stage</th><th>real layouts PSNR</th><th>judge, real layouts</th><th>judge, learned layouts</th><th>FD, learned layouts</th><th>fine energy</th></tr>${rows}
+  <tr><td>real images (ceiling)</td><td class="num">—</td><td class="num">${pc(R.judge_real_subset)}</td><td class="num">—</td><td class="num">${f(R.fd_real_vs_real, 3)} (real vs real)</td><td class="num">1.00×</td></tr>`;
+  $("res-intro").textContent = `Gates and thresholds were committed in PREREG.md before any of them ran. Data: CIFAR-10 (${R.data === "jpeg_mirror" ? "JPEG mirror, quality about 75" : "official batches"}). The judge is a small CNN trained on real images; it reads ${pc(R.judge_real_test)} of real test images.`;
+}
+
+async function main() {
+  const box = $("classes");
+  ["airplane", "automobile", "bird", "cat", "deer", "dog", "frog", "horse", "ship", "truck"].forEach((n, k) => {
+    const b = document.createElement("button");
+    b.className = "chip"; b.textContent = n; b.setAttribute("aria-pressed", String(k === cls));
+    b.onclick = () => { cls = k; [...box.children].forEach((c, j) => c.setAttribute("aria-pressed", String(j === k))); };
+    box.append(b);
+  });
+  $("temp").oninput = () => { $("tval").textContent = parseFloat($("temp").value).toFixed(2); };
+  try {
+    const [meta, buf] = await Promise.all([fetch("model.json").then((r) => r.json()), fetch("model.bin").then((r) => r.arrayBuffer())]);
+    M = loadModel(meta, buf);
+  } catch (e) {
+    $("status").textContent = "Could not load model.json / model.bin next to this page: " + e.message;
+    return;
+  }
+  $("status").textContent = "Ready. Pick a class and draw.";
+  $("go").disabled = $("go12").disabled = false;
+  $("go").onclick = drawOne; $("go12").onclick = drawTwelve;
+  const th = $("thumbs"), thumbs = M.meta.bench.images.map((u8, i) => {
+    const c = canvasFrom(Float32Array.from(u8, (v) => v / 255), 32);
+    c.tabIndex = 0; c.setAttribute("role", "button"); c.setAttribute("aria-label", `test image ${i + 1}, ${M.meta.classes[M.meta.bench.labels[i]]}`);
+    c.onclick = () => showBench(i, thumbs);
+    c.onkeydown = (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); showBench(i, thumbs); } };
+    return c;
+  });
+  th.replaceChildren(...thumbs);
+  showBench(8, thumbs);
+  renderResults();
+  if (M.meta.notes) $("notes").innerHTML = M.meta.notes.map((n) => `<p>${n}</p>`).join("");
+  drawOne();
+}
+main();
+</script>
