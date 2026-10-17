@@ -122,8 +122,17 @@ export function liftLayout(M, L) {         // L: 192 (8,8,3) -> 3072 (32,32,3)
   return matvec(x, W, 193, 3072);
 }
 
-function predictBand(M, C, b, arm) {        // C: one channel, 32*32
-  const s = STRIDES[b], out = new Float32Array(1024), cnt = new Float32Array(1024);
+function gauss(rand) {
+  let u = 0; while (u === 0) u = rand();
+  return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * rand());
+}
+
+// arm "P3" = mean residue (least squares); arm "P3s" = mean + sample of the code's leftover residue
+function predictBand(M, C, b, arm, rand) {        // C: one channel, 32*32
+  const sample = arm === "P3s";
+  if (sample) arm = "P3";
+  const s = STRIDES[b], out = new Float32Array(1024), cnt = new Float32Array(1024), noise = new Float32Array(1024);
+  const Lc = sample ? M.A[`p3s.${b}.L`].d : null, z = new Float32Array(16);
   const Cb = arm === "P3" ? M.A[`p3.${b}.C`].d : null;
   const Wb = arm === "P3" ? M.A[`p3.${b}.W`].d : M.A[`p0.${b}.W`].d;
   const K = arm === "P3" ? M.A[`p3.${b}.C`].shape[0] : 0;
@@ -137,14 +146,14 @@ function predictBand(M, C, b, arm) {        // C: one channel, 32*32
       a[n++] = C[y * 32 + x];
     }
     a[25] = 1;
-    let W = Wb, sd = 1;
+    let W = Wb, sd = 1, best = 0;
     if (arm === "P3") {
       let mu = 0; for (let e = 0; e < 25; e++) mu += a[e];
       mu /= 25;
       let v = 0; for (let e = 0; e < 25; e++) v += (a[e] - mu) ** 2;
       sd = Math.sqrt(v / 25) + EPS;
       for (let e = 0; e < 25; e++) a[e] = (a[e] - mu) / sd;
-      let best = 0, bd = Infinity;
+      let bd = Infinity;
       for (let k = 0; k < K; k++) {
         let dot = 0; for (let e = 0; e < 25; e++) dot += a[e] * Cb[k * 25 + e];
         const dd = c2[k] - 2 * dot; if (dd < bd) { bd = dd; best = k; }
@@ -152,17 +161,25 @@ function predictBand(M, C, b, arm) {        // C: one channel, 32*32
       W = Wb.subarray(best * 26 * 16, (best + 1) * 26 * 16);
     }
     const v = matvec(a, W, 26, 16);
+    let nv = null;
+    if (sample) {
+      for (let e = 0; e < 16; e++) z[e] = gauss(rand);
+      nv = new Float32Array(16);
+      const base = best * 256;
+      for (let r = 0; r < 16; r++) { let t = 0; for (let c = 0; c <= r; c++) t += Lc[base + r * 16 + c] * z[c]; nv[r] = t; }
+    }
     for (let p = 0; p < 16; p++) {
       const y = i + (p >> 2), x = j + (p & 3);
       out[y * 32 + x] += v[p] * sd; cnt[y * 32 + x] += 1;
+      if (nv) noise[y * 32 + x] += nv[p] * sd;
     }
   }
-  for (let k = 0; k < 1024; k++) out[k] /= cnt[k];
+  for (let k = 0; k < 1024; k++) out[k] = out[k] / cnt[k] + (sample ? noise[k] / Math.sqrt(cnt[k]) : 0);
   return out;
 }
 
 // Layout -> stages [lift, +r2, +r1, +r0] and the three bands, all (32,32,3) interleaved.
-export function refine(M, L, arm = "P3") {
+export function refine(M, L, arm = "P3", rand = Math.random) {
   const C = liftLayout(M, L);
   const stages = [C], bands = [];
   let cur = C;
@@ -171,7 +188,7 @@ export function refine(M, L, arm = "P3") {
     for (let ch = 0; ch < 3; ch++) {
       const plane = new Float32Array(1024);
       for (let k = 0; k < 1024; k++) plane[k] = cur[k * 3 + ch];
-      const rb = predictBand(M, plane, b, arm);
+      const rb = predictBand(M, plane, b, arm, rand);
       for (let k = 0; k < 1024; k++) { r[k * 3 + ch] = rb[k]; next[k * 3 + ch] = cur[k * 3 + ch] + rb[k]; }
     }
     bands.push(r); stages.push(next); cur = next;

@@ -37,6 +37,9 @@ def main():
         arrays[f"p3.{b}.C"] = pm.arms[b]["C"]
         arrays[f"p3.{b}.W"] = pm.arms[b]["W"]
         arrays[f"p0.{b}.W"] = pm.arms[b]["W0"]
+    stoch = pickle.load(open(os.path.join(CACHE, "stoch.pkl"), "rb"))
+    for b in (2, 1, 0):
+        arrays[f"p3s.{b}.L"] = stoch[b]
     man, off, chunks = {}, 0, []
     for k, v in arrays.items():
         a = np.ascontiguousarray(np.asarray(v, np.float32)).astype(np.float16)
@@ -48,6 +51,9 @@ def main():
     X, y, src = load("test")
     idx = np.concatenate([np.where(y == c)[0][300:304] for c in range(10)])
     res = json.load(open(os.path.join(HERE, "results", "results.json")))
+    ph = os.path.join(HERE, "results", "posthoc_results.json")
+    if os.path.exists(ph):
+        res["posthoc"] = json.load(open(ph))
     meta = {"arrays": man, "classes": CLASSES, "n_layers": len(ar["blocks"]), "heads": 4,
             "bench": {"images": X[idx].reshape(len(idx), -1).tolist(), "labels": y[idx].tolist()},
             "data": src, "results": res}
