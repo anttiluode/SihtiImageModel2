@@ -1,0 +1,40 @@
+=== gates 2026-10-17 11:04 data=jpeg_mirror
+judge on real test images: all 10000 0.7649, gate subset 0.7700
+O real layouts R0  lift only              PSNR 19.47 dB  judge 0.2175
+O real layouts R1  bicubic                PSNR 21.35 dB  judge 0.2510
+O real layouts R2  lift+P0 linear         PSNR 21.37 dB  judge 0.2535
+O real layouts R3  lift+P3 Sihti memory   PSNR 21.47 dB  judge 0.2640
+O reference: P3 from true x16: {'psnr': 22.580867767333984, 'judge_acc': 0.2815}
+O R3 > R2 on 0.736 of images, R3 > R1 on 0.641
+O1 R3-R2 +0.107 dB, R3-R1 +0.127 dB -> PASS
+O2 judge R3 0.2640 vs R1 0.2510 -> FAIL
+sampled 1000 LA layouts in 145s
+--- rerun after fixing scipy sqrtm signature (no gate or threshold changed) ---
+=== gates 2026-10-17 11:07 data=jpeg_mirror
+judge on real test images: all 10000 0.7649, gate subset 0.7700
+O real layouts R0  lift only              PSNR 19.47 dB  judge 0.2175
+O real layouts R1  bicubic                PSNR 21.35 dB  judge 0.2510
+O real layouts R2  lift+P0 linear         PSNR 21.37 dB  judge 0.2535
+O real layouts R3  lift+P3 Sihti memory   PSNR 21.47 dB  judge 0.2640
+O reference: P3 from true x16: {'psnr': 22.580867767333984, 'judge_acc': 0.2815}
+O R3 > R2 on 0.736 of images, R3 > R1 on 0.641
+O1 R3-R2 +0.107 dB, R3-R1 +0.127 dB -> PASS
+O2 judge R3 0.2640 vs R1 0.2510 -> FAIL
+sampled 1000 LA layouts in 142s
+FD real 2000 vs other real 2000 (floor): 1.073; real fine-band energy 5.768e-03
+G LA+R0 lift only              judge 0.208  FD 148.025  fine-energy ratio 0.014
+G LA+R1 bicubic                judge 0.217  FD 118.530  fine-energy ratio 0.085
+G LA+R2 lift+P0 linear         judge 0.231  FD 111.580  fine-energy ratio 0.111
+G LA+R3 lift+P3 Sihti memory   judge 0.227  FD 110.187  fine-energy ratio 0.115
+G LG+R0 lift only              judge 0.217  FD 149.159  fine-energy ratio 0.013
+G LG+R1 bicubic                judge 0.235  FD 125.525  fine-energy ratio 0.079
+G LG+R2 lift+P0 linear         judge 0.243  FD 118.621  fine-energy ratio 0.106
+G LG+R3 lift+P3 Sihti memory   judge 0.241  FD 117.246  fine-energy ratio 0.107
+G1 LA+R3 0.227 vs LG+R3 0.241 -> FAIL
+G2 FD R3 110.187 R2 111.580 R1 118.530 R0 148.025 -> PASS
+G2b fine-energy ratio LA+R3 0.115 -> FAIL
+G3 LA: novelty ratio 1.030, near-copies 0.0000
+G3 LG: novelty ratio 1.061, near-copies 0.0000
+G3 -> PASS
+LA+R3 per class: airplane 0.09, automobile 0.06, bird 0.62, cat 0.75, deer 0.04, dog 0.11, frog 0.00, horse 0.00, ship 0.60, truck 0.00
+done in 273s

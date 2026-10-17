@@ -1,0 +1,31 @@
+=== fit_models 2026-10-17 09:07 data=jpeg_mirror train=45000 val=5000
+palette 512: fit 22s, val layout RMS quantisation error 0.0186
+lift: val PSNR of lifted x16 vs true x16 42.30 dB (143s)
+patch memory: fit 178s on 135000 grey channel images, sizes {'P0': 1664, 'P1': 8200000, 'P2': 83968, 'P3': 903168}
+judge epoch 1: loss 1.609 val acc 0.5500 (112s)
+judge epoch 2: loss 1.153 val acc 0.6204 (220s)
+judge epoch 3: loss 0.973 val acc 0.6806 (323s)
+judge epoch 4: loss 0.859 val acc 0.7204 (421s)
+judge epoch 5: loss 0.782 val acc 0.7384 (517s)
+judge epoch 6: loss 0.714 val acc 0.7428 (613s)
+judge epoch 7: loss 0.661 val acc 0.7516 (709s)
+judge epoch 8: loss 0.616 val acc 0.7640 (803s)
+judge epoch 9: loss 0.588 val acc 0.7704 (897s)
+judge epoch 10: loss 0.571 val acc 0.7692 (991s)
+=== fit_models 2026-10-17 09:34 data=jpeg_mirror train=45000 val=5000
+layout AR epoch 1: train NLL 4.662 val NLL 3.773 nats/cell (1.814 bits/dim) (212s)
+layout AR epoch 2: train NLL 3.683 val NLL 3.625 nats/cell (1.743 bits/dim) (421s)
+layout AR epoch 3: train NLL 3.603 val NLL 3.579 nats/cell (1.721 bits/dim) (631s)
+layout AR epoch 4: train NLL 3.564 val NLL 3.555 nats/cell (1.710 bits/dim) (840s)
+layout AR epoch 5: train NLL 3.538 val NLL 3.537 nats/cell (1.701 bits/dim) (1047s)
+layout AR epoch 6: train NLL 3.516 val NLL 3.513 nats/cell (1.689 bits/dim) (1263s)
+layout AR epoch 7: train NLL 3.498 val NLL 3.501 nats/cell (1.683 bits/dim) (1471s)
+layout AR epoch 8: train NLL 3.481 val NLL 3.487 nats/cell (1.677 bits/dim) (1681s)
+layout AR epoch 9: train NLL 3.465 val NLL 3.474 nats/cell (1.670 bits/dim) (1894s)
+layout AR epoch 10: train NLL 3.452 val NLL 3.465 nats/cell (1.666 bits/dim) (2106s)
+layout AR epoch 11: train NLL 3.440 val NLL 3.457 nats/cell (1.663 bits/dim) (2320s)
+layout AR epoch 12: train NLL 3.429 val NLL 3.451 nats/cell (1.660 bits/dim) (2530s)
+layout AR epoch 13: train NLL 3.421 val NLL 3.447 nats/cell (1.657 bits/dim) (2742s)
+layout AR epoch 14: train NLL 3.416 val NLL 3.444 nats/cell (1.656 bits/dim) (2957s)
+layout AR epoch 15: train NLL 3.412 val NLL 3.444 nats/cell (1.656 bits/dim) (3169s)
+layout AR: best val NLL 3.444
