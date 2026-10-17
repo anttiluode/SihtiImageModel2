@@ -1,0 +1,25 @@
+=== posthoc 2026-10-17 11:14
+residual covariances fitted in 388s
+LA+R4 sampled detail: judge 0.264  FD 97.728  fine-energy ratio 1.593
+LG+R4 sampled detail: judge 0.284  FD 109.130  fine-energy ratio 1.635
+S1 fine-energy ratio 1.593 -> FAIL
+S2 FD R4 97.728 vs R3 110.187 -> PASS
+S3 real layouts: R4 PSNR 17.55 dB vs R3 21.47 dB (-3.93); fine-energy 1.584; judge 0.307
+S3 real layouts: R4 FD to other real images 95.920 (R3: 102.369)
+blur judge epoch 1: loss 1.747 val acc 0.4488 (115s)
+blur judge epoch 2: loss 1.434 val acc 0.4932 (229s)
+blur judge epoch 3: loss 1.293 val acc 0.5398 (342s)
+blur judge epoch 4: loss 1.183 val acc 0.5794 (457s)
+blur judge epoch 5: loss 1.114 val acc 0.6006 (571s)
+blur judge epoch 6: loss 1.075 val acc 0.6022 (687s)
+blur judge trained in 696s
+blur judge  real layouts, bicubic    0.611
+blur judge  real layouts, Sihti P3   0.599
+blur judge  real images (sharp)      0.504
+blur judge  LA+R1                    0.477
+blur judge  LA+R3                    0.466
+blur judge  LA+R4                    0.272
+blur judge  LG+R1                    0.550
+blur judge  LG+R3                    0.532
+blur judge  LG+R4                    0.255
+done in 1200s

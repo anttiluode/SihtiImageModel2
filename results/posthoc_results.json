@@ -1,0 +1,265 @@
+{
+ "LA_R4": {
+  "judge_acc": 0.264,
+  "fd": 97.72816508116568,
+  "hf_ratio": 1.5925601991498866
+ },
+ "LG_R4": {
+  "judge_acc": 0.284,
+  "fd": 109.12978024575585,
+  "hf_ratio": 1.6352160304162766
+ },
+ "real_R4": {
+  "psnr": 17.546955108642578,
+  "judge_acc": 0.3075,
+  "fd_to_other_real": 95.92033491639114,
+  "hf_ratio": 1.5843358048387945
+ },
+ "blur_judge": {
+  "real layouts, bicubic": {
+   "acc": 0.611,
+   "per_class": {
+    "airplane": 0.645,
+    "automobile": 0.745,
+    "bird": 0.475,
+    "cat": 0.43,
+    "deer": 0.48,
+    "dog": 0.505,
+    "frog": 0.71,
+    "horse": 0.66,
+    "ship": 0.775,
+    "truck": 0.685
+   },
+   "predicted_share": {
+    "airplane": 0.112,
+    "automobile": 0.1045,
+    "bird": 0.0875,
+    "cat": 0.0995,
+    "deer": 0.08,
+    "dog": 0.0905,
+    "frog": 0.1155,
+    "horse": 0.1,
+    "ship": 0.1135,
+    "truck": 0.097
+   }
+  },
+  "real layouts, Sihti P3": {
+   "acc": 0.599,
+   "per_class": {
+    "airplane": 0.61,
+    "automobile": 0.76,
+    "bird": 0.465,
+    "cat": 0.445,
+    "deer": 0.435,
+    "dog": 0.52,
+    "frog": 0.665,
+    "horse": 0.655,
+    "ship": 0.775,
+    "truck": 0.66
+   },
+   "predicted_share": {
+    "airplane": 0.101,
+    "automobile": 0.113,
+    "bird": 0.085,
+    "cat": 0.109,
+    "deer": 0.0745,
+    "dog": 0.0955,
+    "frog": 0.1015,
+    "horse": 0.1,
+    "ship": 0.121,
+    "truck": 0.0995
+   }
+  },
+  "real images (sharp)": {
+   "acc": 0.504,
+   "per_class": {
+    "airplane": 0.68,
+    "automobile": 0.84,
+    "bird": 0.385,
+    "cat": 0.32,
+    "deer": 0.065,
+    "dog": 0.495,
+    "frog": 0.62,
+    "horse": 0.42,
+    "ship": 0.535,
+    "truck": 0.68
+   },
+   "predicted_share": {
+    "airplane": 0.158,
+    "automobile": 0.196,
+    "bird": 0.0685,
+    "cat": 0.0725,
+    "deer": 0.008,
+    "dog": 0.101,
+    "frog": 0.1185,
+    "horse": 0.0595,
+    "ship": 0.063,
+    "truck": 0.155
+   }
+  },
+  "LA+R1": {
+   "acc": 0.477,
+   "per_class": {
+    "airplane": 0.51,
+    "automobile": 0.5,
+    "bird": 0.34,
+    "cat": 0.37,
+    "deer": 0.44,
+    "dog": 0.47,
+    "frog": 0.51,
+    "horse": 0.43,
+    "ship": 0.55,
+    "truck": 0.65
+   },
+   "predicted_share": {
+    "airplane": 0.097,
+    "automobile": 0.087,
+    "bird": 0.091,
+    "cat": 0.102,
+    "deer": 0.102,
+    "dog": 0.111,
+    "frog": 0.118,
+    "horse": 0.073,
+    "ship": 0.105,
+    "truck": 0.114
+   }
+  },
+  "LA+R3": {
+   "acc": 0.466,
+   "per_class": {
+    "airplane": 0.48,
+    "automobile": 0.57,
+    "bird": 0.35,
+    "cat": 0.38,
+    "deer": 0.39,
+    "dog": 0.48,
+    "frog": 0.41,
+    "horse": 0.38,
+    "ship": 0.59,
+    "truck": 0.63
+   },
+   "predicted_share": {
+    "airplane": 0.086,
+    "automobile": 0.105,
+    "bird": 0.087,
+    "cat": 0.125,
+    "deer": 0.087,
+    "dog": 0.115,
+    "frog": 0.092,
+    "horse": 0.078,
+    "ship": 0.115,
+    "truck": 0.11
+   }
+  },
+  "LA+R4": {
+   "acc": 0.272,
+   "per_class": {
+    "airplane": 0.41,
+    "automobile": 0.63,
+    "bird": 0.15,
+    "cat": 0.04,
+    "deer": 0.0,
+    "dog": 0.27,
+    "frog": 0.07,
+    "horse": 0.0,
+    "ship": 0.36,
+    "truck": 0.79
+   },
+   "predicted_share": {
+    "airplane": 0.167,
+    "automobile": 0.247,
+    "bird": 0.036,
+    "cat": 0.018,
+    "deer": 0.0,
+    "dog": 0.054,
+    "frog": 0.025,
+    "horse": 0.001,
+    "ship": 0.082,
+    "truck": 0.37
+   }
+  },
+  "LG+R1": {
+   "acc": 0.55,
+   "per_class": {
+    "airplane": 0.41,
+    "automobile": 0.67,
+    "bird": 0.29,
+    "cat": 0.36,
+    "deer": 0.42,
+    "dog": 0.58,
+    "frog": 0.7,
+    "horse": 0.59,
+    "ship": 0.73,
+    "truck": 0.75
+   },
+   "predicted_share": {
+    "airplane": 0.052,
+    "automobile": 0.111,
+    "bird": 0.047,
+    "cat": 0.08,
+    "deer": 0.084,
+    "dog": 0.139,
+    "frog": 0.141,
+    "horse": 0.115,
+    "ship": 0.111,
+    "truck": 0.12
+   }
+  },
+  "LG+R3": {
+   "acc": 0.532,
+   "per_class": {
+    "airplane": 0.31,
+    "automobile": 0.75,
+    "bird": 0.31,
+    "cat": 0.41,
+    "deer": 0.37,
+    "dog": 0.51,
+    "frog": 0.58,
+    "horse": 0.58,
+    "ship": 0.76,
+    "truck": 0.74
+   },
+   "predicted_share": {
+    "airplane": 0.041,
+    "automobile": 0.131,
+    "bird": 0.051,
+    "cat": 0.099,
+    "deer": 0.066,
+    "dog": 0.153,
+    "frog": 0.103,
+    "horse": 0.11,
+    "ship": 0.124,
+    "truck": 0.122
+   }
+  },
+  "LG+R4": {
+   "acc": 0.255,
+   "per_class": {
+    "airplane": 0.26,
+    "automobile": 0.68,
+    "bird": 0.09,
+    "cat": 0.05,
+    "deer": 0.0,
+    "dog": 0.18,
+    "frog": 0.08,
+    "horse": 0.02,
+    "ship": 0.37,
+    "truck": 0.82
+   },
+   "predicted_share": {
+    "airplane": 0.111,
+    "automobile": 0.305,
+    "bird": 0.02,
+    "cat": 0.02,
+    "deer": 0.0,
+    "dog": 0.063,
+    "frog": 0.014,
+    "horse": 0.002,
+    "ship": 0.069,
+    "truck": 0.396
+   }
+  }
+ },
+ "S1": false,
+ "S2": true
+}
