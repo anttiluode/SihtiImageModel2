@@ -5,3 +5,4 @@ __pycache__/
 results/fit_stdout.txt
 results/fit_log.txt
 results/gate_log.txt
+results/gate_stdout.txt
